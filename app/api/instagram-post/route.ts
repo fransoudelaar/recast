@@ -1,4 +1,4 @@
-import { generateText, streamText } from 'ai';
+import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
 import { NextResponse } from 'next/server';
 
@@ -24,7 +24,7 @@ async function fetchFromScraper(url: string) {
     video = data.download_url;
   } else {
     if (data.medias && Array.isArray(data.medias)) {
-      data.medias.forEach((m: any) => images.push(m.download_url));
+      data.medias.forEach((m: { download_url: string }) => images.push(m.download_url));
     } else if (data.download_url) {
       images.push(data.download_url);
     }

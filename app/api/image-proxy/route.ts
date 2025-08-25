@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
         'Cache-Control': 'public, max-age=86400',
       },
     });
-  } catch (e) {
+  } catch (_e) {
     return new NextResponse('Error fetching image', { status: 500 });
   }
 }
