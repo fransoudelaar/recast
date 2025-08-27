@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const result = streamText({
-    model: google('gemini-2.5-pro'), // "gemini-2.0-flash-001"
+    model: google('gemini-2.5-flash'), // "gemini-2.0-flash-001"
     messages,
     tools: {
       weather: tool({
@@ -37,6 +37,9 @@ export async function POST(req: Request) {
           };
         },
       }),
+    },
+    onError: error => {
+      console.error('Error occurred:', error);
     },
   });
 
