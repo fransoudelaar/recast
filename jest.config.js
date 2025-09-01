@@ -1,4 +1,5 @@
 /** @type {import('jest').Config} */
+process.env.BABEL_CONFIG_PATH = '<rootDir>/babel.config.test.js';
 module.exports = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
@@ -8,8 +9,6 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': 'babel-jest',
   },
-  transformIgnorePatterns: [
-    '/node_modules/',
-  ],
+  transformIgnorePatterns: ['/node_modules/'],
   setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
 };
