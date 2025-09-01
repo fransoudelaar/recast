@@ -36,19 +36,19 @@ export function InstaPostForm({
         e.preventDefault();
         onSubmit();
       }}>
-      <FormInput
-        id="link"
-        name="link"
-        label="Instagram link"
-        type="text"
-        placeholder="Instagram link"
-        value={link}
-        onChange={e => onChange('link', e.target.value)}
-        required
-        aria-required="true"
-        errorId={errorId}
-      />
       <div className="flex gap-2">
+        <FormInput
+          id="link"
+          name="link"
+          label="Instagram link"
+          type="text"
+          placeholder="Instagram link"
+          value={link}
+          onChange={e => onChange('link', e.target.value)}
+          required
+          aria-required="true"
+          errorId={errorId}
+        />
         <FormInput
           id="rigName"
           name="rigName"
@@ -58,6 +58,8 @@ export function InstaPostForm({
           value={rigName}
           onChange={e => onChange('rigName', e.target.value)}
         />
+      </div>
+      <div className="flex gap-2">
         <FormInput
           id="creator"
           name="creator"
