@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
+import { Metadata } from 'next';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ReCast®',
+  title: 'ReCast - Cast your rig. ReCast your content.',
   description: 'Cast your rig. ReCast your content.',
 };
 

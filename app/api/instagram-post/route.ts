@@ -1,143 +1,67 @@
 import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
 import { NextResponse } from 'next/server';
-import { sanitizeInput } from './util/sanitizeInput';
-import { isValidInstagramUrl } from './util/isValidInstagramUrl';
-
-type PostRequestBody = {
-  link: string;
-  rigName?: string;
-  creator?: string;
-  creatorHandle?: string;
-  info?: string;
-};
-
-type PromptProps = PostRequestBody & {
-  originalCaption?: string;
-};
-
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
-if (!RAPIDAPI_KEY) {
-  throw new Error('Missing RAPIDAPI_KEY environment variable');
-}
+import { sanitizePostFields } from '../../utils/sanitizePostFields';
+import { fetchFromScraper } from './services/fetchFromScraper';
+import { generateRigVaultPrompt } from './services/generateRigVaultPrompt';
+import { badRequest, internalError } from '../../utils/apiErrors';
+import { validateInstagramPostInput } from './services/validateInstagramPostInput';
+import { ValidationError, ExternalApiError } from '../../utils/errors';
+import { PostRequestBody } from './types';
 
 /**
- * Fetches media info from a third-party Instagram scraper API.
- */
-async function fetchFromScraper(
-  url: string,
-): Promise<{ images: string[]; video: string | null; caption: string } | null> {
-  try {
-    const res = await fetch(
-      `https://instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com/get-info-rapidapi?url=${encodeURIComponent(url)}`,
-      {
-        method: 'GET',
-        headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY!,
-          'X-RapidAPI-Host':
-            'instagram-downloader-download-instagram-videos-stories1.p.rapidapi.com',
-        },
-      },
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-
-    let video: string | null = null;
-    const images: string[] = [];
-    if (data.type === 'video') {
-      video = data.download_url;
-    } else if (Array.isArray(data.medias)) {
-      data.medias.forEach((m: { download_url: string }) => images.push(m.download_url));
-    } else if (data.download_url) {
-      images.push(data.download_url);
-    }
-
-    return { images, video, caption: data.caption || '' };
-  } catch (e) {
-    console.error('[fetchFromScraper]', e);
-    return null;
-  }
-}
-
-/**
- * Generates a prompt for the AI model based on provided Instagram post details.
- */
-function generateRigVaultPrompt({
-  link,
-  rigName,
-  creator,
-  creatorHandle,
-  info,
-  originalCaption,
-}: PromptProps): string {
-  return `
-    You are writing an Instagram caption for "The Rig Vault", a carp fishing brand.
-    Tone:
-    - Engaging, short punchy sentences.
-    - Mix of education and inspiration.
-    - Use rig-specific jargon (stiff section, hinge point, bait floss, hook choice, etc) but don't come up with components yourself. Use the inputs.
-    - Slightly informal, as if talking to fellow carp anglers.
-    - Call to action at the end.
-    Structure:
-    1. Hook sentence (make it engaging).
-    2. Short educational bit (explain the rig, bait, or setup).
-    3. Tip or personal insight (optional).
-    4. Strong call to action ("What’s your go-to setup? Drop it below 👇").
-    5. Effective hashtags (#carpfishing #carprigs #therigvault + rig-specific hashtags).
-    Inputs:
-    - Instagram link: ${link}
-    - Rig Name: ${rigName}
-    - Creator: ${creator}
-    - Creator's Instagram handle to be tagged: ${creatorHandle}
-    - Extra info: ${info}
-    - Original Instagram caption: ${originalCaption}
-    Task:
-    Based on these inputs, write one unique, improved caption for Instagram in The Rig Vault style.
-  `;
-}
-
-/**
- * Handles POST requests for generating Instagram captions in The Rig Vault style.
+ * Instagram caption generation API route for The Rig Vault.
+ *
+ * Handles POST requests to generate a custom Instagram caption using AI.
+ * - Validates and sanitizes input
+ * - Fetches Instagram media info
+ * - Generates a caption using an AI model
+ * - Returns the generated caption and media info as JSON
+ *
+ * @param {Request} req - The incoming HTTP request
+ * @returns {Promise<Response>} The API response with generated caption and media info
  */
 export async function POST(req: Request): Promise<Response> {
-  let body: PostRequestBody;
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
-  }
+    // Parse and validate the request body
+    let body: PostRequestBody;
+    try {
+      body = await req.json();
+    } catch {
+      // Malformed JSON
+      throw new ValidationError('Invalid JSON body');
+    }
 
-  const { link, rigName, creator, creatorHandle, info } = body;
+    // Validate required and format-specific fields
+    const validationErrors = validateInstagramPostInput(body);
+    if (validationErrors.length > 0) {
+      // Return all validation errors at once
+      throw new ValidationError(validationErrors.join(', '));
+    }
 
-  const sanitizedLink = sanitizeInput(link, 500);
-  const sanitizedRigName = sanitizeInput(rigName);
-  const sanitizedCreator = sanitizeInput(creator);
-  const sanitizedCreatorHandle = sanitizeInput(creatorHandle);
-  const sanitizedInfo = sanitizeInput(info, 1000);
+    // Sanitize all user input to prevent injection or abuse
+    const sanitized = sanitizePostFields(body);
 
-  if (!sanitizedLink || !isValidInstagramUrl(sanitizedLink)) {
-    return NextResponse.json({ error: 'Invalid or missing Instagram link' }, { status: 400 });
-  }
+    // Fetch Instagram media (images, video, caption) using a third-party API
+    const media = await fetchFromScraper(sanitized.link);
+    if (!media) {
+      // Could not fetch media (API error, invalid link, etc)
+      throw new ExternalApiError('Could not fetch media from Instagram');
+    }
 
-  const media = await fetchFromScraper(sanitizedLink);
-  if (!media) {
-    return NextResponse.json({ error: 'Could not fetch media from Instagram' }, { status: 500 });
-  }
+    // Build the AI prompt using sanitized and fetched data
+    const prompt = generateRigVaultPrompt({
+      ...sanitized,
+      originalCaption: media.caption || 'No caption provided',
+    });
 
-  const prompt = generateRigVaultPrompt({
-    link: sanitizedLink,
-    rigName: sanitizedRigName,
-    creator: sanitizedCreator,
-    creatorHandle: sanitizedCreatorHandle,
-    info: sanitizedInfo,
-    originalCaption: media.caption || 'No caption provided',
-  });
-
-  try {
+    // Generate the Instagram caption using the AI model
     const { text } = await generateText({
       model: google('gemini-2.5-flash'),
       prompt,
     });
+
+    // Return the generated caption and media info
     return NextResponse.json({
       caption: text,
       images: media.images,
@@ -145,7 +69,15 @@ export async function POST(req: Request): Promise<Response> {
       originalCaption: media.caption,
     });
   } catch (err) {
-    console.error('[generateText]', err);
-    return NextResponse.json({ error: 'AI generation failed' }, { status: 500 });
+    // Centralized error handling for known and unknown errors
+    if (err instanceof ValidationError) {
+      return badRequest(err.message);
+    }
+    if (err instanceof ExternalApiError) {
+      return internalError(err.message);
+    }
+    // Log unexpected errors for debugging
+    console.error('[POST handler]', err);
+    return internalError('Unexpected server error');
   }
 }

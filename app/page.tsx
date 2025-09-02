@@ -8,7 +8,7 @@ import { Images } from './components/Images';
 import { Video } from './components/Video';
 import { Logo } from './components/Logo';
 import { InstaPostForm } from './components/InstaPostForm';
-import { isValidInstagramUrl } from './api/instagram-post/util/isValidInstagramUrl';
+import { isValidInstagramUrl } from './utils/isValidInstagramUrl';
 
 // Type for post parameters
 type PostParams = {
@@ -18,6 +18,13 @@ type PostParams = {
   creatorHandle?: string;
   info?: string;
 };
+
+type DataReturnType = {
+  caption: string;
+  images: string[];
+  video: string | null;
+  originalCaption: string;
+} | null;
 
 // API call to generate Instagram post
 async function generatePost(props: PostParams) {
@@ -43,12 +50,7 @@ export default function InstaPostGenerator() {
   const [formError, setFormError] = useState<string | null>(null);
 
   // React Query mutation for API call
-  const { mutate, data, isPending, error } = useMutation<{
-    caption: string;
-    images: string[];
-    video: string | null;
-    originalCaption: string;
-  } | null>({
+  const { mutate, data, isPending, error } = useMutation<DataReturnType>({
     mutationFn: () => generatePost(form),
     onError: () => {
       setFormError('Something went wrong. Please check your input and try again.');

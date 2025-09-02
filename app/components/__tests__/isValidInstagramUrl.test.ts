@@ -1,4 +1,4 @@
-import { isValidInstagramUrl } from '../../api/instagram-post/util/isValidInstagramUrl';
+import { isValidInstagramUrl } from '../../utils/isValidInstagramUrl';
 
 describe('isValidInstagramUrl', () => {
   it('returns true for valid Instagram URLs', () => {
