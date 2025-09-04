@@ -2,7 +2,7 @@ import React from 'react';
 import { FormInput } from './FormInput';
 import { FormTextarea } from './FormTextarea';
 import { FormError } from './FormError';
-import { Spinner } from './Spinner';
+import { SpinnerIcon } from './icons/SpinnerIcon';
 
 interface InstaPostFormProps {
   link: string;
@@ -96,7 +96,7 @@ export function InstaPostForm({
         <span className="w-full relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-linear-65 dark:from-neutral-900 dark:to-stone-950 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
           {isPending ? (
             <>
-              <Spinner />
+              <SpinnerIcon />
               Generating...
             </>
           ) : (

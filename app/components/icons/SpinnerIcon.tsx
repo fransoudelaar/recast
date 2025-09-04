@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Spinner() {
+export function SpinnerIcon() {
   return (
     <svg
       aria-hidden="true"

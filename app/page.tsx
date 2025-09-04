@@ -4,42 +4,16 @@ import { useMutation } from '@tanstack/react-query';
 
 import { useState } from 'react';
 import { Caption } from './components/Caption';
-import { Images } from './components/Images';
-import { Video } from './components/Video';
+import { Media } from './components/Media';
 import { Logo } from './components/Logo';
 import { InstaPostForm } from './components/InstaPostForm';
 import { isValidInstagramUrl } from './utils/isValidInstagramUrl';
 
-// Type for post parameters
-type PostParams = {
-  link: string;
-  rigName?: string;
-  creator?: string;
-  creatorHandle?: string;
-  info?: string;
-};
-
-type DataReturnType = {
-  caption: string;
-  images: string[];
-  video: string | null;
-  originalCaption: string;
-} | null;
-
-// API call to generate Instagram post
-async function generatePost(props: PostParams) {
-  const res = await fetch('/api/instagram-post', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(props),
-  });
-
-  const data = await res.json();
-  return data;
-}
+import type { DataReturnType } from './services/instagramPost';
+import { generatePost } from './services/instagramPost';
+import { FormError } from './components/FormError';
 
 export default function InstaPostGenerator() {
-  // Form state
   const [form, setForm] = useState({
     link: '',
     rigName: '',
@@ -49,7 +23,6 @@ export default function InstaPostGenerator() {
   });
   const [formError, setFormError] = useState<string | null>(null);
 
-  // React Query mutation for API call
   const { mutate, data, isPending, error } = useMutation<DataReturnType>({
     mutationFn: () => generatePost(form),
     onError: () => {
@@ -57,6 +30,7 @@ export default function InstaPostGenerator() {
     },
     onSuccess: () => {
       setFormError(null);
+      window.scrollTo(0, 0);
     },
   });
 
@@ -96,16 +70,13 @@ export default function InstaPostGenerator() {
 
       <div className="mt-6 space-y-4">
         {error && !formError && (
-          <p className="text-red-500">
-            {error.message || 'Something went wrong. Please try again.'}
-          </p>
+          <FormError error={error.message || 'Something went wrong. Please try again.'} />
         )}
 
         {data && (
           <>
             <Caption caption={data.caption} />
-            <Images images={data.images} />
-            <Video video={data.video} />
+            <Media images={data.images} video={data.video} />
           </>
         )}
       </div>
