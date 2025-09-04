@@ -47,22 +47,12 @@ Install dependencies:
 
 ```bash
 pnpm install
-# or
-yarn install
-# or
-npm install
 ```
 
 Run the development server:
 
 ```bash
 pnpm dev
-# or
-yarn dev
-# or
-npm run dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
