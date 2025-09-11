@@ -3,15 +3,15 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { useState } from 'react';
-import { Caption } from './components/Caption';
-import { Media } from './components/Media';
-import { Logo } from './components/Logo';
-import { InstaPostForm } from './components/InstaPostForm';
-import { isValidInstagramUrl } from './utils/isValidInstagramUrl';
+import { Caption } from './_components/Caption';
+import { Media } from './_components/Media';
+import { Logo } from './_components/Logo';
+import { InstaPostForm } from './_components/InstaPostForm';
+import { isValidInstagramUrl } from './_utils/isValidInstagramUrl';
 
-import type { DataReturnType } from './services/instagramPost';
-import { generatePost } from './services/instagramPost';
-import { FormError } from './components/FormError';
+import type { DataReturnType } from './_services/instagramPost';
+import { generatePost } from './_services/instagramPost';
+import { FormError } from './_components/FormError';
 
 export default function InstaPostGenerator() {
   const [form, setForm] = useState({
@@ -74,10 +74,10 @@ export default function InstaPostGenerator() {
         )}
 
         {data && (
-          <>
+          <div className="flex flex-col gap-4 pb-32">
             <Caption caption={data.caption} />
             <Media images={data.images} video={data.video} />
-          </>
+          </div>
         )}
       </div>
     </div>

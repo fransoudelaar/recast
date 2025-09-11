@@ -1,12 +1,12 @@
 import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
 import { NextResponse } from 'next/server';
-import { sanitizePostFields } from '../../utils/sanitizePostFields';
+import { sanitizePostFields } from '../../_utils/sanitizePostFields';
 import { fetchFromScraper } from './services/fetchFromScraper';
 import { generateRigVaultPrompt } from './services/generateRigVaultPrompt';
-import { badRequest, internalError } from '../../utils/apiErrors';
+import { badRequest, internalError } from '../../_utils/apiErrors';
 import { validateInstagramPostInput } from './services/validateInstagramPostInput';
-import { ValidationError, ExternalApiError } from '../../utils/errors';
+import { ValidationError, ExternalApiError } from '../../_utils/errors';
 import { PostRequestBody } from './types';
 
 /**

@@ -1,4 +1,4 @@
-import { isValidInstagramUrl } from '../../utils/isValidInstagramUrl';
+import { isValidInstagramUrl } from '../isValidInstagramUrl';
 
 describe('isValidInstagramUrl', () => {
   it('returns true for valid Instagram URLs', () => {

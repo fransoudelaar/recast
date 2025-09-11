@@ -43,7 +43,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={`flex text-sm uppercase text-blue-500 rounded-full py-2 px-4 justify-center items-center bg-gradient-to-br from-blue-500 to-blue-700 text-white hover:from-purple-500 hover:to-purple-600 hover:text-white active:from-purple-700 active:to-purple-800${className ? ` ${className}` : ''}`}
+      className={`flex text-sm uppercase rounded-full py-2 px-4 justify-center items-center bg-gradient-to-br from-blue-500 to-blue-700 text-white hover:from-purple-500 hover:to-purple-600 hover:text-white active:from-purple-700 active:to-purple-800${className ? ` ${className}` : ''}`}
       aria-label={ariaLabel}
       onClick={onClick}
       disabled={disabled}>

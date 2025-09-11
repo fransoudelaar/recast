@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { badRequest, internalError, badGateway } from '../../utils/apiErrors';
+import { badRequest, internalError, badGateway } from '../../_utils/apiErrors';
 
 /**
  * Image proxy API route.

@@ -1,4 +1,4 @@
-import { isValidInstagramUrl } from '../../../utils/isValidInstagramUrl';
+import { isValidInstagramUrl } from '../../../_utils/isValidInstagramUrl';
 import { PostRequestBody } from '../types';
 
 /**
