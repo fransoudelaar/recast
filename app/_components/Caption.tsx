@@ -20,6 +20,7 @@ export function Caption({ caption }: CaptionProps) {
       setTimeout(() => setCopied(false), 1500);
     } catch (e) {
       // Optionally handle error
+      console.error('[Caption] Failed to copy text:', e);
     }
   };
   return (
